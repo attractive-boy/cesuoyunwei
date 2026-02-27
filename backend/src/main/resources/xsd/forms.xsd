@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cesuoyunwei.com/forms"
+           xmlns:tns="http://cesuoyunwei.com/forms"
+           elementFormDefault="qualified">
+
+  <xs:element name="SubmitFormRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="templateId" type="xs:long"/>
+        <xs:element name="dataJson" type="xs:string"/>
+        <xs:element name="submitterId" type="xs:long" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SubmitFormResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="submissionId" type="xs:long"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="GetSubmissionRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id" type="xs:long"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="GetSubmissionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id" type="xs:long"/>
+        <xs:element name="templateId" type="xs:long"/>
+        <xs:element name="dataJson" type="xs:string"/>
+        <xs:element name="submitterId" type="xs:long" minOccurs="0"/>
+        <xs:element name="createdAt" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
