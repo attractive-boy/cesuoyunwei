@@ -1,9 +1,10 @@
-import prisma from '../../lib/prismaClient';
-import Ajv from 'ajv';
+const path = require('path');
+const prisma = require(path.join(process.cwd(), 'lib', 'prismaClient'));
+const Ajv = require('ajv');
 
 const ajv = new Ajv();
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     const { templateId, dataJson, submitterId } = req.body;
     if (!templateId || !dataJson) return res.status(400).json({ error: 'templateId and dataJson required' });

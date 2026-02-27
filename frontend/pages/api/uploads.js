@@ -1,40 +1,40 @@
-import formidable from 'formidable';
-import fs from 'fs';
-import path from 'path';
+const { BlobServiceClient } = require('@azure/storage-blob');
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // ensure upload dir exists
+  // Expect JSON: { name: string, data: 'data:<mime>;base64,<payload>' }
+  const { name, data } = req.body;
+  if (!name || !data) return res.status(400).json({ error: 'name and data required' });
+
+  const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
+  const matches = String(data).match(/^data:(.+);base64,(.+)$/);
+  if (!matches) return res.status(400).json({ error: 'invalid data format' });
+  const mime = matches[1];
+  const b64 = matches[2];
+  if (!allowed.includes(mime)) return res.status(400).json({ error: 'file type not allowed' });
+
+  const buffer = Buffer.from(b64, 'base64');
+  const MAX_BYTES = 5 * 1024 * 1024;
+  if (buffer.length > MAX_BYTES) return res.status(413).json({ error: 'file too large' });
+
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'images';
+  if (!connectionString) return res.status(500).json({ error: 'azure storage not configured' });
+
   try {
-    fs.mkdirSync(uploadDir, { recursive: true });
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    // create container if not exists
+    await containerClient.createIfNotExists();
+
+    const blobName = `${Date.now()}-${name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.uploadData(buffer, { blobHTTPHeaders: { blobContentType: mime } });
+    const url = blockBlobClient.url;
+    return res.status(200).json({ url, name: blobName, size: buffer.length, mime });
   } catch (err) {
-    console.error('mkdir failed', err);
+    console.error('azure upload error', err);
+    return res.status(500).json({ error: 'upload error' });
   }
-
-  const form = formidable({ multiples: true, uploadDir, keepExtensions: true });
-
-  form.parse(req, (err, fields, files) => {
-    if (err) {
-      console.error('form parse error', err);
-      return res.status(500).json({ error: 'Upload error' });
-    }
-    // normalize files
-    const uploaded = [];
-    const fileObjs = Array.isArray(files.file) ? files.file : (files.file ? [files.file] : []);
-    for (const f of fileObjs) {
-      const filename = path.basename(f.filepath || f.path || f.newFilename || f.originalFilename);
-      const url = `/uploads/${filename}`;
-      uploaded.push({ url, name: filename, size: f.size });
-    }
-    return res.status(200).json({ files: uploaded });
-  });
-}
+};

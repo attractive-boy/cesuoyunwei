@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import RecentSubmissions from '../components/RecentSubmissions';
 
 export default function Home() {
   return (
@@ -12,8 +13,7 @@ export default function Home() {
         </ul>
       </nav>
       <section>
-        <h2>最近提交</h2>
-        <p>（示例数据将在 API 初始化后显示）</p>
+        <RecentSubmissions />
       </section>
     </main>
   );

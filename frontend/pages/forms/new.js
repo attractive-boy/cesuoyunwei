@@ -43,12 +43,18 @@ export default function NewForm() {
           const files = Array.from(e.target.files || []);
           if (files.length === 0) return;
           setUploading(true);
-          const fd = new FormData();
-          files.forEach(f => fd.append('file', f));
           try {
-            const r = await fetch('/api/uploads', { method: 'POST', body: fd });
-            const j = await r.json();
-            if (j.files) setAttachments(prev => prev.concat(j.files.map(f => f.url)));
+            for (const f of files) {
+              const reader = new FileReader();
+              const data = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(f);
+              });
+              const r = await fetch('/api/uploads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: f.name, data }) });
+              const j = await r.json();
+              if (j.url) setAttachments(prev => prev.concat(j.url));
+            }
           } catch (err) {
             console.error('upload error', err);
           } finally { setUploading(false); }

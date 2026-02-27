@@ -1,4 +1,16 @@
 {
+  "name": "cesuoyunwei-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
+    "prisma:migrate:dev": "npx prisma migrate dev --schema=./prisma/schema.prisma",
+    "prisma:migrate:deploy": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
+    "prisma:studio": "npx prisma studio --schema=./prisma/schema.prisma",
+    "seed": "node prisma/seed.js"
+  }
+}
+{
   "dependencies": {
     "mammoth": "^1.11.0"
   }
