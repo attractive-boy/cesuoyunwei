@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "湖北省普通国省道交通厕所运维评价表",
+  "description": "交通厕所运维评价表的 JSON Schema（初版）。字段按表头与评定项组织，评定项可记录最大分值、扣分规则与实际得分。请复核并调整具体校验规则与枚举。",
+  "type": "object",
+  "properties": {
+    "trafficToiletName": { "type": "string", "title": "交通厕所名称" },
+    "county": { "type": "string", "title": "所在县（市、区）" },
+    "routeNumber": { "type": "string", "title": "线路编号" },
+    "evaluationUnit": { "type": "string", "title": "评定单位" },
+    "evaluationTime": { "type": "string", "format": "date-time", "title": "评定时间" },
+    "evaluators": { "type": "string", "title": "评定人员" },
+    "overallRemarks": { "type": "string", "title": "说明/备注" },
+    "sections": {
+      "type": "array",
+      "title": "评定分项",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sectionTitle": { "type": "string" },
+          "sectionDescription": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemName": { "type": "string" },
+                "itemDescription": { "type": "string" },
+                "maxScore": { "type": "number" },
+                "deductionRule": { "type": "string" },
+                "checkMethod": { "type": "string" },
+                "score": { "type": "number", "minimum": 0 },
+                "deductions": { "type": "array", "items": { "type": "object", "properties": { "reason": { "type": "string" }, "points": { "type": "number" } }, "required": ["reason","points"] } },
+                "remarks": { "type": "string" }
+              },
+              "required": ["itemName","maxScore"]
+            }
+          }
+        },
+        "required": ["sectionTitle","items"]
+      }
+    }
+  },
+  "required": ["trafficToiletName","county","routeNumber","evaluationUnit","evaluationTime","evaluators","sections"]
+}

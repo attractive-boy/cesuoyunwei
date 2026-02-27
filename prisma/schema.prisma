@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  name      String?
+  role      String  @default("viewer")
+  azureId   String? @unique
+  createdAt DateTime @default(now())
+}
+
+model FormTemplate {
+  id        Int     @id @default(autoincrement())
+  name      String
+  schemaJson Json
+  docxSource String?
+  createdAt DateTime @default(now())
+}
+
+model FormSubmission {
+  id          Int     @id @default(autoincrement())
+  template    FormTemplate @relation(fields: [templateId], references: [id])
+  templateId  Int
+  submitter   User?   @relation(fields: [submitterId], references: [id])
+  submitterId Int?
+  dataJson    Json
+  status      String  @default("submitted")
+  createdAt   DateTime @default(now())
+}
