@@ -8,10 +8,11 @@
     "prisma:migrate:deploy": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
     "prisma:studio": "npx prisma studio --schema=./prisma/schema.prisma",
     "seed": "node prisma/seed.js"
-  }
-}
-{
+  },
   "dependencies": {
     "mammoth": "^1.11.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.4.1"
   }
 }
